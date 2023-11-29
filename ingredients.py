@@ -3,13 +3,13 @@ import pandas as pd
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
+from nutrients import get_nutrients
 nltk.download('stopwords')
 nltk.download('punkt')
 stop_words = set(stopwords.words('english'))
 
 
 def parse_text(text):
-    print(text)
     text = text.lower()
     word_tokens = word_tokenize(text)
     stopwords_in_text = [w for w in word_tokens if w.lower() in stop_words]
@@ -41,18 +41,16 @@ def parse_text(text):
 prodf = pd.read_csv("Products.csv")
 unique_ingredients = set()
 
-print(parse_text(prodf.at[777, "ingredients_english"]))
 
-# for i,rows in prodf.iterrows():
-#     if type(prodf.at[i, "ingredients_english"]) != str:
-#         continue
-#     ingredients = parse_text(prodf.at[i, "ingredients_english"])
-#     for ingredient in ingredients:
-#         unique_ingredients.add(ingredient)
+full_data = {}
 
-# print(len(list(unique_ingredients)))
-# print(list(unique_ingredients)[1:101])
+for i,rows in prodf.iterrows():
+    if type(prodf.at[i, "ingredients_english"]) != str:
+        continue
+    ingredients = parse_text(prodf.at[i, "ingredients_english"])
+    full_data[prodf.at[i, "NDB_Number"]] = {"ingredients": ingredients}
+    for ingredient in ingredients:
+        unique_ingredients.add(ingredient)
 
-# NOTE: Get nutrients
-# Use openfoodfacts to get missing nutrients
-# (1) energy, (2) fat, (3) saturated fat, (4) carbohydrates, (5) sugar, (6) protein, and (7) sodium 
+    full_data[prodf.at[i, "NDB_Number"]]["nutrients"] = get_nutrients(prodf.at[i, "NDB_Number"], prodf.at[i, "gtin_upc"])
+
