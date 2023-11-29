@@ -37,20 +37,22 @@ def parse_text(text):
     return text_result
 
 
-
-prodf = pd.read_csv("Products.csv")
-unique_ingredients = set()
-
-
-full_data = {}
-
-for i,rows in prodf.iterrows():
-    if type(prodf.at[i, "ingredients_english"]) != str:
-        continue
-    ingredients = parse_text(prodf.at[i, "ingredients_english"])
-    full_data[prodf.at[i, "NDB_Number"]] = {"ingredients": ingredients}
+def get_info(index):
+    prodf = pd.read_csv("Products.csv")
+    unique_ingredients = set()
+    if type(prodf.at[index, "ingredients_english"]) != str:
+        return
+    ingredients = parse_text(prodf.at[index, "ingredients_english"])
+    full_data = {"ingredients": ingredients}
     for ingredient in ingredients:
         unique_ingredients.add(ingredient)
 
-    full_data[prodf.at[i, "NDB_Number"]]["nutrients"] = get_nutrients(prodf.at[i, "NDB_Number"], prodf.at[i, "gtin_upc"])
+    full_data["nutrients"] = get_nutrients(prodf.at[index, "NDB_Number"], prodf.at[index, "gtin_upc"])
+
+    return full_data
+
+print(get_info(3678))
+
+
+
 
