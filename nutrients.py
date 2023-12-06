@@ -13,7 +13,9 @@ def get_nutrients(product_no, upc):
     for index, row in prodf.iterrows():
         nutrient = row["Nutrient_name"]
         if nutrient in big_7:
-            values[nutrient] = row["Output_value"]
+            if nutrient == "Sodium, Na":
+                values[nutrient] = row["Output_value"]/1000
+            else: values[nutrient] = row["Output_value"]
             big_7.remove(nutrient)
     if len(big_7) > 0:
         for nutrient in big_7:
@@ -47,8 +49,8 @@ def fetch_nutrient(nutrient, upc):
             result = 0
         else:
             result = data["product"]["nutriments"][mapping[nutrient]]
-        if nutrient == "Sodium, Na":
-            result *= 1000
+        # if nutrient == "Sodium, Na":
+        #     result *= 1000
     return result
 
 

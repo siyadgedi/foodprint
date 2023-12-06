@@ -47,11 +47,12 @@ def get_info(index):
     for ingredient in ingredients:
         unique_ingredients.add(ingredient)
 
+    full_data["name"] = prodf.at[index, "long_name"]
     full_data["nutrients"] = get_nutrients(prodf.at[index, "NDB_Number"], prodf.at[index, "gtin_upc"])
 
     return full_data
 
-print(get_info(3678))
+# print(get_info(3678))
 
 
 

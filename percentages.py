@@ -33,13 +33,14 @@ def remap_big7(target_big7_old):
     
 
 
-def setup(target, num):
+def setup(num):
     # ingredients = ["sugar", "palm_oil", "hazelnut", "low_fat_cocoa", "nonfat_milk_powder"]
     # ingredients = ['sugar', 'palm oil', 'hazelnuts', 'cocoa', 'skim milk', 'whey', 'lecithin emulsifier', 'artificial flavor']
 
     # TODO
     bfsd_info = get_info(num)
     ingredients = bfsd_info['ingredients']
+    target = bfsd_info["name"]
 
     food_composition = {}
     for ingredient in ingredients:
@@ -48,11 +49,10 @@ def setup(target, num):
     # TODO: use bfsd_info['nutrients'] instead of manual entry - need to fix mapping
     # food_composition[target] = {'protein (g)': 5.4, 'sodium (g)': 0.04, 'carbohydrate (g)': 62.1, 'sugars (g)': 54, 'fat (g)': 29.7, 'calories': 540, 'saturated fat (g)': 29.7}
     food_composition[target] = remap_big7(bfsd_info['nutrients'])
-    food_composition[target]['sodium (g)'] = food_composition[target]['sodium (g)']/1000
 
     ingredient_weights = [None]*len(ingredients)
 
-    return ingredients, food_composition, ingredient_weights
+    return target, ingredients, food_composition, ingredient_weights
 
 # Formulate the problem as an optimization task:
 # - linear model without bias
@@ -120,5 +120,10 @@ def calculate_percent(ingredients, food_composition, ingredient_weights, target)
 #ingredients, food_composition, ingredient_weights = setup("nutella", 28451)
 #calculate_percent(ingredients, food_composition, ingredient_weights, "nutella")
 
-ingredients, food_composition, ingredient_weights = setup("SKIPPY SINGLES CREAMY PEANUT BUTTER", 28450)
-calculate_percent(ingredients, food_composition, ingredient_weights, "SKIPPY SINGLES CREAMY PEANUT BUTTER")
+# name, ingredients, food_composition, ingredient_weights = setup(28450)
+# calculate_percent(ingredients, food_composition, ingredient_weights, name)
+
+
+for i in range(0, 200000, 10000):
+    name, ingredients, food_composition, ingredient_weights = setup(i)
+    calculate_percent(ingredients, food_composition, ingredient_weights, name)
