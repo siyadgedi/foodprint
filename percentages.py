@@ -117,8 +117,8 @@ def calculate_percent(ingredients, food_composition, ingredient_weights, target)
 
     print("final loss: %.1f" % loss.item())
 
-#ingredients, food_composition, ingredient_weights = setup("nutella", 28451)
-#calculate_percent(ingredients, food_composition, ingredient_weights, "nutella")
+# name, ingredients, food_composition, ingredient_weights = setup(28451)
+#calculate_percent(ingredients, food_composition, ingredient_weights, name)
 
 # name, ingredients, food_composition, ingredient_weights = setup(28450)
 # calculate_percent(ingredients, food_composition, ingredient_weights, name)
