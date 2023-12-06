@@ -10,8 +10,8 @@ def nutritionixAPI(query):
     })
 
     headers = {
-        "x-app-id": "ee0e16ba",
-        "x-app-key": "90b46a80271dc959ce370f1277f5961f",
+        "x-app-id": "b3444f3c",
+        "x-app-key": "8dee6a36d45fb133556413d7e9bd65ab",
         "Content-Type": "application/json"
     }
 
@@ -20,6 +20,9 @@ def nutritionixAPI(query):
     data = response.json()
     response_dict = {}
     # TODO ensure these values are out of 100g
+
+    if (data.get("message")):
+        print(data.get("message"))
 
     response_dict["protein (g)"] = data.get("foods", [{}])[0].get("nf_protein") or 0
     response_dict["sodium (g)"] = (data.get("foods", [{}])[0].get("nf_sodium") or 0)/1000

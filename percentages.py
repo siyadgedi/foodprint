@@ -77,6 +77,8 @@ def calculate_percent(ingredients, food_composition, ingredient_weights, target)
 
     # normalization to be more efficient on smaller nutritional amounts
     Y_scaler = Y.clone()
+    # print(Y_scaler)
+    Y_scaler[Y_scaler == 0] = 1
     X.div_(Y_scaler)
     _ = Y.div_(Y_scaler)
 
@@ -125,10 +127,15 @@ def calculate_percent(ingredients, food_composition, ingredient_weights, target)
 # name, ingredients, food_composition, ingredient_weights = setup(28451)
 #calculate_percent(ingredients, food_composition, ingredient_weights, name)
 
-# name, ingredients, food_composition, ingredient_weights = setup(28450)
-# calculate_percent(ingredients, food_composition, ingredient_weights, name)
+name, ingredients, food_composition, ingredient_weights = setup(3790)
+print(food_composition[name])
+calculate_percent(ingredients, food_composition, ingredient_weights, name)
 
 
-for i in range(0, 200000, 10000):
-    name, ingredients, food_composition, ingredient_weights = setup(i)
-    calculate_percent(ingredients, food_composition, ingredient_weights, name)
+# for i in range(0, 200000, 10000):
+#     name, ingredients, food_composition, ingredient_weights = setup(i)
+#     calculate_percent(ingredients, food_composition, ingredient_weights, name)
+
+#4255
+#3790
+#2345
