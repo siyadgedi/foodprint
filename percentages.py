@@ -48,7 +48,7 @@ def setup(target, num):
     # TODO: use bfsd_info['nutrients'] instead of manual entry - need to fix mapping
     # food_composition[target] = {'protein (g)': 5.4, 'sodium (g)': 0.04, 'carbohydrate (g)': 62.1, 'sugars (g)': 54, 'fat (g)': 29.7, 'calories': 540, 'saturated fat (g)': 29.7}
     food_composition[target] = remap_big7(bfsd_info['nutrients'])
-    food_composition[target]['sodium (g)'] = 0.04
+    food_composition[target]['sodium (g)'] = food_composition[target]['sodium (g)']/1000
 
     ingredient_weights = [None]*len(ingredients)
 
@@ -88,7 +88,7 @@ def calculate_percent(ingredients, food_composition, ingredient_weights, target)
         loss = (Y_pred - Y).pow(2).sum()
         
         # try to go and stay at 100g total
-        loss += (W.sum()-1.).abs()*5
+        loss += (W.sum()-1.).abs()*50
         
         loss_history[epoch] = loss.item()
         loss.backward()
@@ -117,8 +117,8 @@ def calculate_percent(ingredients, food_composition, ingredient_weights, target)
 
     print("final loss: %.1f" % loss.item())
 
-ingredients, food_composition, ingredient_weights = setup("nutella", 28451)
+#ingredients, food_composition, ingredient_weights = setup("nutella", 28451)
+#calculate_percent(ingredients, food_composition, ingredient_weights, "nutella")
 
-print(food_composition["nutella"])
-
-calculate_percent(ingredients, food_composition, ingredient_weights, "nutella")
+ingredients, food_composition, ingredient_weights = setup("SKIPPY SINGLES CREAMY PEANUT BUTTER", 28450)
+calculate_percent(ingredients, food_composition, ingredient_weights, "SKIPPY SINGLES CREAMY PEANUT BUTTER")
