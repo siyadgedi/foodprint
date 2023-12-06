@@ -22,7 +22,7 @@ def nutritionixAPI(query):
     # TODO ensure these values are out of 100g
 
     response_dict["protein (g)"] = data.get("foods", [{}])[0].get("nf_protein") or 0
-    response_dict["sodium (g)"] = data.get("foods", [{}])[0].get("nf_sodium") or 0
+    response_dict["sodium (g)"] = (data.get("foods", [{}])[0].get("nf_sodium")/1000) or 0
     response_dict["carbohydrate (g)"] = data.get("foods", [{}])[0].get("nf_total_carbohydrate") or 0
     response_dict["sugars (g)"] = data.get("foods", [{}])[0].get("nf_sugars") or 0
     response_dict["fat (g)"] = data.get("foods", [{}])[0].get("nf_total_fat") or 0
