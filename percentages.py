@@ -20,6 +20,18 @@ big7_components = [
     'saturated fat (g)'
 ]
 
+def remap_big7(target_big7_old):
+    target_big7_new = {}
+    target_big7_new['protein (g)'] = target_big7_old["Protein"]
+    target_big7_new['sodium (g)'] = target_big7_old["Sodium, Na"]
+    target_big7_new['carbohydrate (g)'] = target_big7_old["Carbohydrate, by difference"]
+    target_big7_new['sugars (g)'] = target_big7_old["Sugars, total"]
+    target_big7_new['fat (g)'] = target_big7_old["Total lipid (fat)"]
+    target_big7_new['calories'] = target_big7_old["Energy"]
+    target_big7_new['saturated fat (g)'] = target_big7_old["Fatty acids, total saturated"]
+    return target_big7_new
+    
+
 
 def setup(target, num):
     # ingredients = ["sugar", "palm_oil", "hazelnut", "low_fat_cocoa", "nonfat_milk_powder"]
@@ -34,7 +46,10 @@ def setup(target, num):
         food_composition[ingredient] = nutritionixAPI(ingredient)
 
     # TODO: use bfsd_info['nutrients'] instead of manual entry - need to fix mapping
-    food_composition[target] = {'protein (g)': 5.4, 'sodium (g)': 0.04, 'carbohydrate (g)': 62.1, 'sugars (g)': 54, 'fat (g)': 29.7, 'calories': 540, 'saturated fat (g)': 29.7}
+    # food_composition[target] = {'protein (g)': 5.4, 'sodium (g)': 0.04, 'carbohydrate (g)': 62.1, 'sugars (g)': 54, 'fat (g)': 29.7, 'calories': 540, 'saturated fat (g)': 29.7}
+    food_composition[target] = remap_big7(bfsd_info['nutrients'])
+    food_composition[target]['sodium (g)'] = 0.04
+
     ingredient_weights = [None]*len(ingredients)
 
     return ingredients, food_composition, ingredient_weights
@@ -104,20 +119,6 @@ def calculate_percent(ingredients, food_composition, ingredient_weights, target)
 
 ingredients, food_composition, ingredient_weights = setup("nutella", 28451)
 
-# SAMPLE data
-# food_composition2 = {
-#     "sugar": {'protein (g)': 0, 'sodium (g)': 0, 'carbohydrate (g)': 100, 'sugars (g)': 100, 'fat (g)': 0, 'calories': 387, 'saturated fat (g)': 0},
-#     "palm_oil": {'protein (g)': 0, 'sodium (g)': 0, 'carbohydrate (g)': 0, 'sugars (g)': 0, 'fat (g)': 100, 'calories': 865.8, 'saturated fat (g)': 47.8},
-#     "hazelnut": {'protein (g)': 15.4, 'sodium (g)': 0, 'carbohydrate (g)': 17.8, 'sugars (g)': 5, 'fat (g)': 64.3, 'calories': 653.3, 'saturated fat (g)': 4.6},
-#     "low_fat_cocoa": {'protein (g)': 20, 'sodium (g)': 0, 'carbohydrate (g)': 60, 'sugars (g)': 0, 'fat (g)': 10, 'calories': 420, 'saturated fat (g)': 0},
-#     "nonfat_milk_powder": {'protein (g)': 36.9, 'sodium (g)': 0.57, 'carbohydrate (g)': 57.9, 'sugars (g)': 44.8, 'fat (g)': 47.4, 'calories': 842.7, 'saturated fat (g)': 21.1},
-#     "nutella": {'protein (g)': 5.4, 'sodium (g)': 0.04, 'carbohydrate (g)': 62.1, 'sugars (g)': 54, 'fat (g)': 29.7, 'calories': 540, 'saturated fat (g)': 29.7}
-# }
-
-
-# ingredients = ["sugar", "palm_oil", "hazelnut", "low_fat_cocoa", "nonfat_milk_powder"]
-# ingredient_weights = [None]*len(ingredients)
-# target = "nutella"
-
+print(food_composition["nutella"])
 
 calculate_percent(ingredients, food_composition, ingredient_weights, "nutella")
