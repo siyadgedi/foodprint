@@ -8,7 +8,7 @@ import torch.nn.functional as F
 from collections import OrderedDict
 from torch.autograd import Variable
 from nutritionix import *
-#from ingredients import get_info
+from ingredients import get_info
 
 big7_components = [
     'protein (g)',
@@ -22,12 +22,12 @@ big7_components = [
 
 
 def setup(target, num):
-    ingredients = ["sugar", "palm_oil", "hazelnut", "low_fat_cocoa", "nonfat_milk_powder"]
+    # ingredients = ["sugar", "palm_oil", "hazelnut", "low_fat_cocoa", "nonfat_milk_powder"]
     # ingredients = ['sugar', 'palm oil', 'hazelnuts', 'cocoa', 'skim milk', 'whey', 'lecithin emulsifier', 'artificial flavor']
 
     # TODO
-    # bfsd_info = get_info(num)
-    # ingredients = bfsd_info['ingredients']
+    bfsd_info = get_info(num)
+    ingredients = bfsd_info['ingredients']
 
     food_composition = {}
     for ingredient in ingredients:
@@ -81,7 +81,10 @@ def calculate_percent(ingredients, food_composition, ingredient_weights, target)
         for i in range(W.size(0)):
             if ingredient_weights[i] is None: # update only unknown quantities
                 W.data[i].sub_(1e-5 * W.grad[i].data)
-                
+
+                if "emulsifier" in ingredients[i] or "flavor" in ingredients[i]: # (max 0.5% of emulsifier)
+                    W.data[i].clamp_(0., 0.005 * (1 if not target=="peanut_butter_cups" else W[:7,:].sum().data[0]))
+                    
                 # keep mass positives
                 W.data[i].clamp_(0., 100.)
                 
@@ -99,10 +102,6 @@ def calculate_percent(ingredients, food_composition, ingredient_weights, target)
 
     print("final loss: %.1f" % loss.item())
 
-# something isn't working during setup or calculate_percent
-# when the sample data from below is used, calculate_percent works
-# but when setup is used, calculate_percent is not correct
-# not sure if the error is in setup or something is wrong in calculate_percent
 ingredients, food_composition, ingredient_weights = setup("nutella", 28451)
 
 # SAMPLE data
