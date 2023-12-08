@@ -31,7 +31,12 @@ def remap_big7(target_big7_old):
     target_big7_new['saturated fat (g)'] = target_big7_old["Fatty acids, total saturated"]
     return target_big7_new
     
-
+def small_ingredient(ingredient):
+    small = ["emulsifier", "flavor", "acid", "enzymes", "color", "artificial", "dextrin", "vitamin"]
+    for s in small:
+        if s in ingredient:
+            return True
+    return False
 
 def setup(num):
     # ingredients = ["sugar", "palm_oil", "hazelnut", "low_fat_cocoa", "nonfat_milk_powder"]
@@ -72,6 +77,8 @@ def calculate_percent(ingredients, food_composition, ingredient_weights, target)
 
     # normalization to be more efficient on smaller nutritional amounts
     Y_scaler = Y.clone()
+    # print(Y_scaler)
+    Y_scaler[Y_scaler == 0] = 1
     X.div_(Y_scaler)
     _ = Y.div_(Y_scaler)
 
@@ -97,8 +104,8 @@ def calculate_percent(ingredients, food_composition, ingredient_weights, target)
             if ingredient_weights[i] is None: # update only unknown quantities
                 W.data[i].sub_(1e-5 * W.grad[i].data)
 
-                if "emulsifier" in ingredients[i] or "flavor" in ingredients[i]: # (max 0.5% of emulsifier)
-                    W.data[i].clamp_(0., 0.005 * (1 if not target=="peanut_butter_cups" else W[:7,:].sum().data[0]))
+                if small_ingredient(ingredients[i]): # (max 1% of "small" ingredients)
+                    W.data[i].clamp_(0., 0.01)
                     
                 # keep mass positives
                 W.data[i].clamp_(0., 100.)
@@ -120,10 +127,15 @@ def calculate_percent(ingredients, food_composition, ingredient_weights, target)
 # name, ingredients, food_composition, ingredient_weights = setup(28451)
 #calculate_percent(ingredients, food_composition, ingredient_weights, name)
 
-# name, ingredients, food_composition, ingredient_weights = setup(28450)
-# calculate_percent(ingredients, food_composition, ingredient_weights, name)
+name, ingredients, food_composition, ingredient_weights = setup(3790)
+print(food_composition[name])
+calculate_percent(ingredients, food_composition, ingredient_weights, name)
 
 
-for i in range(0, 200000, 10000):
-    name, ingredients, food_composition, ingredient_weights = setup(i)
-    calculate_percent(ingredients, food_composition, ingredient_weights, name)
+# for i in range(0, 200000, 10000):
+#     name, ingredients, food_composition, ingredient_weights = setup(i)
+#     calculate_percent(ingredients, food_composition, ingredient_weights, name)
+
+#4255
+#3790
+#2345
