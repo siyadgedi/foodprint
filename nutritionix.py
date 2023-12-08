@@ -9,11 +9,8 @@ def nutritionixAPI(query):
         "query": "100g " + query
     })
 
-    headers = {
-        "x-app-id": "b3444f3c",
-        "x-app-key": "8dee6a36d45fb133556413d7e9bd65ab",
-        "Content-Type": "application/json"
-    }
+    f = open('api_key.json')
+    headers = json.load(f)
 
     response = requests.request("POST", url, headers=headers, data=payload)
      
