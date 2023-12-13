@@ -39,10 +39,6 @@ def small_ingredient(ingredient):
     return False
 
 def setup(num):
-    # ingredients = ["sugar", "palm_oil", "hazelnut", "low_fat_cocoa", "nonfat_milk_powder"]
-    # ingredients = ['sugar', 'palm oil', 'hazelnuts', 'cocoa', 'skim milk', 'whey', 'lecithin emulsifier', 'artificial flavor']
-
-    # TODO
     bfsd_info = get_info(num)
     ingredients = bfsd_info['ingredients']
     target = bfsd_info["name"]
@@ -51,8 +47,6 @@ def setup(num):
     for ingredient in ingredients:
         food_composition[ingredient] = nutritionixAPI(ingredient)
 
-    # TODO: use bfsd_info['nutrients'] instead of manual entry - need to fix mapping
-    # food_composition[target] = {'protein (g)': 5.4, 'sodium (g)': 0.04, 'carbohydrate (g)': 62.1, 'sugars (g)': 54, 'fat (g)': 29.7, 'calories': 540, 'saturated fat (g)': 29.7}
     food_composition[target] = remap_big7(bfsd_info['nutrients'])
 
     ingredient_weights = [None]*len(ingredients)
@@ -77,7 +71,6 @@ def calculate_percent(ingredients, food_composition, ingredient_weights, target)
 
     # normalization to be more efficient on smaller nutritional amounts
     Y_scaler = Y.clone()
-    # print(Y_scaler)
     Y_scaler[Y_scaler == 0] = 1
     X.div_(Y_scaler)
     _ = Y.div_(Y_scaler)
@@ -91,7 +84,6 @@ def calculate_percent(ingredients, food_composition, ingredient_weights, target)
     for epoch in range(epochs):
         Y_pred = X.mm(W)
         
-        # l2 loss
         loss = (Y_pred - Y).pow(2).sum()
         
         # try to go and stay at 100g total
@@ -124,14 +116,10 @@ def calculate_percent(ingredients, food_composition, ingredient_weights, target)
 
     print("final loss: %.1f" % loss.item())
 
-# name, ingredients, food_composition, ingredient_weights = setup(28451)
-#calculate_percent(ingredients, food_composition, ingredient_weights, name)
-
-name, ingredients, food_composition, ingredient_weights = setup(3790)
-print(food_composition[name])
+name, ingredients, food_composition, ingredient_weights = setup(28451)
 calculate_percent(ingredients, food_composition, ingredient_weights, name)
 
-
+# loop through database
 # for i in range(0, 200000, 10000):
 #     name, ingredients, food_composition, ingredient_weights = setup(i)
 #     calculate_percent(ingredients, food_composition, ingredient_weights, name)
