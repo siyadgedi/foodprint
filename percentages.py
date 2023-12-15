@@ -87,7 +87,7 @@ def calculate_percent(ingredients, food_composition, ingredient_weights, target)
         loss = (Y_pred - Y).pow(2).sum()
         
         # try to go and stay at 100g total
-        loss += (W.sum()-1.).abs()*50
+        loss += (W.sum()-1.).abs()*5
         
         loss_history[epoch] = loss.item()
         loss.backward()
@@ -127,3 +127,4 @@ calculate_percent(ingredients, food_composition, ingredient_weights, name)
 #4255
 #3790
 #2345
+#28451
