@@ -4,11 +4,13 @@ import matplotlib.pyplot as plt
 import json
 import torch
 import torch.nn.functional as F
+import csv
 
 from collections import OrderedDict
 from torch.autograd import Variable
 from nutritionix import *
 from ingredients import get_info
+import csv
 
 big7_components = [
     'protein (g)',
@@ -40,18 +42,34 @@ def small_ingredient(ingredient):
 
 def setup(num):
     bfsd_info = get_info(num)
-    ingredients = bfsd_info['ingredients']
-    target = bfsd_info["name"]
+    if (bfsd_info):
+        ingredients = bfsd_info['ingredients']
+        target = bfsd_info["name"]
+    else:
+        return None
 
     food_composition = {}
-    for ingredient in ingredients:
-        food_composition[ingredient] = nutritionixAPI(ingredient)
+    for i in range(len(ingredients)):
+        ingredient_tag, composition = nutritionixAPI(ingredients[i])
+        if ingredient_tag:
+            ingredients[i] = ingredient_tag
+        food_composition[ingredients[i]] = composition
 
     food_composition[target] = remap_big7(bfsd_info['nutrients'])
 
     ingredient_weights = [None]*len(ingredients)
 
     return target, ingredients, food_composition, ingredient_weights
+
+
+def setup_ingredients_only(num):
+    bfsd_info = get_info(num)
+    if (bfsd_info):
+        ingredients = bfsd_info['ingredients']
+    else:
+        ingredients = []
+
+    return ingredients
 
 # Formulate the problem as an optimization task:
 # - linear model without bias
@@ -110,19 +128,71 @@ def calculate_percent(ingredients, food_composition, ingredient_weights, target)
                 
         W.grad.data.zero_()
 
+    # plot loss
+    # fig = plt.figure(figsize=(15,5))
+    # ax = fig.add_subplot(1,1,1)
+    # ax.set_title("Loss = f(epoch)")
+    # ax.plot(loss_history)
+    # ax.legend()
+    # plt.show()
+
     weights = OrderedDict([(ingredients[i], "%.1fg" % (W.data[i,0]*100)) for i in range(len(ingredients))])
+    write_weights_to_csv(weights)
+
     print("estimated composition for %s =" % target, json.dumps(weights, indent=2))
     print("total: %.1fg" % np.sum([W.data[i,0]*100 for i in range(len(ingredients))]))
 
     print("final loss: %.1f" % loss.item())
 
-name, ingredients, food_composition, ingredient_weights = setup(28451)
-calculate_percent(ingredients, food_composition, ingredient_weights, name)
+def write_weights_to_csv(ordered_dict):
+    csv_file_name = 'stored_ingredient_weights.csv'
+    
+    # Attempt to load existing data, or create a new DataFrame if the file does not exist
+    try:
+        existing_df = pd.read_csv(csv_file_name)
+    except FileNotFoundError:
+        existing_df = pd.DataFrame(columns=['ingredient', 'total weight'])
+    
+    # Ensure 'total weight' is float for sum operations
+    existing_df['total weight'] = existing_df['total weight'].astype(float)
+    
+    # Prepare new data from OrderedDict
+    new_data = pd.DataFrame(list(ordered_dict.items()), columns=['ingredient', 'total weight'])
+    new_data['total weight'] = new_data['total weight'].str.replace('g', '').astype(float)
 
-# loop through database
-# for i in range(0, 200000, 10000):
-#     name, ingredients, food_composition, ingredient_weights = setup(i)
-#     calculate_percent(ingredients, food_composition, ingredient_weights, name)
+    # Combine new and existing data
+    combined_df = pd.concat([existing_df, new_data])
+    
+    # Group by ingredient and sum weights, reset index to turn groupby object back into DataFrame
+    result_df = combined_df.groupby('ingredient', as_index=False)['total weight'].sum()
+    
+    # Write the result back to CSV without appending 'g' to weights
+    result_df.to_csv(csv_file_name, index=False)
+
+def single_product():
+    name, ingredients, food_composition, ingredient_weights = setup(10009)
+    print(ingredients)
+    calculate_percent(ingredients, food_composition, ingredient_weights, name)
+
+def loop():
+# # loop through database OLD
+    for i in range(9, 200000, 10000):
+        try:
+            name, ingredients, food_composition, ingredient_weights = setup(i)
+            calculate_percent(ingredients, food_composition, ingredient_weights, name)
+        except:
+            print("skipped")
+
+
+loop()
+
+# print(ingredients_dict)
+
+# with open("ingredient_frequency.csv", 'w', newline='') as csvfile:
+#     writer = csv.writer(csvfile)
+#     for key, value in ingredients_dict.items():
+#         writer.writerow([key, value])
+
 
 #4255
 #3790

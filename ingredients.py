@@ -4,9 +4,17 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nutrients import get_nutrients
-nltk.download('stopwords')
-nltk.download('punkt')
+# call these in python terminal first time
+# nltk.download('stopwords')
+# nltk.download('punkt')
 stop_words = set(stopwords.words('english'))
+
+prodf = None  # Global variable to store product data
+
+
+def load_product_data():
+    global prodf
+    prodf = pd.read_csv("Products.csv", dtype={'ingredients_english': str, 'long_name': str}, low_memory=False)
 
 
 def parse_text(text):
@@ -38,9 +46,12 @@ def parse_text(text):
 
 
 def get_info(index):
-    prodf = pd.read_csv("Products.csv")
+    global prodf
+    if prodf is None:
+        load_product_data()
     unique_ingredients = set()
     if type(prodf.at[index, "ingredients_english"]) != str:
+        print("type error with ingredients_english")
         return
     ingredients = parse_text(prodf.at[index, "ingredients_english"])
     full_data = {"ingredients": ingredients}
