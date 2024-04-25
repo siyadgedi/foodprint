@@ -14,7 +14,7 @@ prodf = None  # Global variable to store product data
 
 def load_product_data():
     global prodf
-    prodf = pd.read_csv("Products.csv", dtype={'ingredients_english': str, 'long_name': str}, low_memory=False)
+    prodf = pd.read_csv("data/Products.csv", dtype={'ingredients_english': str, 'long_name': str}, low_memory=False)
 
 
 def parse_text(text):

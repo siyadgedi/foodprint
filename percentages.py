@@ -51,6 +51,10 @@ def setup(num):
     food_composition = {}
     for i in range(len(ingredients)):
         ingredient_tag, composition = nutritionixAPI(ingredients[i])
+        # for large loops 
+        # if (ingredient_tag and ingredient_tag == "usage limits exceeded"):
+        #     target = ingredient_tag
+        #     break
         if ingredient_tag:
             ingredients[i] = ingredient_tag
         food_composition[ingredients[i]] = composition
@@ -105,7 +109,7 @@ def calculate_percent(ingredients, food_composition, ingredient_weights, target)
         loss = (Y_pred - Y).pow(2).sum()
         
         # try to go and stay at 100g total
-        loss += (W.sum()-1.).abs()*5
+        loss += (W.sum()-1.).abs()*15
         
         loss_history[epoch] = loss.item()
         loss.backward()
@@ -144,8 +148,10 @@ def calculate_percent(ingredients, food_composition, ingredient_weights, target)
 
     print("final loss: %.1f" % loss.item())
 
+    return weights
+
 def write_weights_to_csv(ordered_dict):
-    csv_file_name = 'stored_ingredient_weights.csv'
+    csv_file_name = 'data/stored_ingredient_weights_v2.csv'
     
     # Attempt to load existing data, or create a new DataFrame if the file does not exist
     try:
@@ -169,32 +175,29 @@ def write_weights_to_csv(ordered_dict):
     # Write the result back to CSV without appending 'g' to weights
     result_df.to_csv(csv_file_name, index=False)
 
-def single_product():
-    name, ingredients, food_composition, ingredient_weights = setup(10009)
-    print(ingredients)
+def single_product(x):
+    name, ingredients, food_composition, ingredient_weights = setup(x)
     calculate_percent(ingredients, food_composition, ingredient_weights, name)
 
-def loop():
+def loop(x):
 # # loop through database OLD
-    for i in range(9, 200000, 10000):
+    for i in range(x, 200000, 10000):
         try:
             name, ingredients, food_composition, ingredient_weights = setup(i)
+            if name == "usage limits exceeded":
+                print("starting loop at x: " + str(x))
+                print("currently at i = " + str(i))
+                break
             calculate_percent(ingredients, food_composition, ingredient_weights, name)
         except:
             print("skipped")
 
 
-loop()
+# for i in range(62, 72):
+#     loop(i)
 
-# print(ingredients_dict)
 
-# with open("ingredient_frequency.csv", 'w', newline='') as csvfile:
-#     writer = csv.writer(csvfile)
-#     for key, value in ingredients_dict.items():
-#         writer.writerow([key, value])
-
+# single_product(193977)
 
 #4255
-#3790
-#2345
 #28451

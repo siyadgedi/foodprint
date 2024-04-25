@@ -49,10 +49,13 @@ def nutritionixAPI(query):
         stored_list.append(value)
     write_to_csv(stored_list)
     
+    if (data.get("message") and data.get("message") == "usage limits exceeded" ):
+        item_tag = data.get("message")
+        
     return item_tag, response_dict
 
 def check_csv(query):
-    file_path = 'stored_ingredients.csv'
+    file_path = 'data/stored_ingredients.csv'
     if os.path.isfile(file_path):
         with open(file_path, 'r', newline='') as f:
             reader = csv.reader(f)
@@ -62,7 +65,8 @@ def check_csv(query):
     return None
 
 def write_to_csv(data):
-    file_path = 'stored_ingredients.csv'
+    file_path = 'data/stored_ingredients.csv'
     with open(file_path, 'a', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(data)
+

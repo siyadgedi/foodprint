@@ -6,7 +6,7 @@ import pandas as pd
 import requests
 
 def get_nutrients(product_no, upc):
-    ndf = pd.read_csv("Nutrients.csv")
+    ndf = pd.read_csv("data/Nutrients.csv")
     prodf = ndf.loc[ndf["NDB_No"] == product_no]
     big_7 = ["Energy", "Total lipid (fat)", "Fatty acids, total saturated", "Carbohydrate, by difference", "Sugars, total", "Protein", "Sodium, Na"]
     values = {}
